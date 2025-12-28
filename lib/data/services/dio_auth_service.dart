@@ -16,7 +16,7 @@ class DioAuthService extends AuthService {
   Future<UserModel> signIn({required String email, required String password}) {
     return _performRequest(
       () => _dio.post(
-        '/m/auth/login',
+        '/auth/login',
         data: {'email': email, 'password': password},
       ),
       (data) {
@@ -38,7 +38,7 @@ class DioAuthService extends AuthService {
   }) {
     return _performRequest(
       () => _dio.post(
-        '/m/auth/register',
+        '/auth/register',
         data: {
           'email': email,
           'password': password,
@@ -59,7 +59,7 @@ class DioAuthService extends AuthService {
   @override
   Future<UserModel> verifyToken() {
     return _performRequest(
-      () => _dio.get('/m/auth/verify-token'),
+      () => _dio.get('/auth/verify-token'),
       (data) => UserModel.fromJson(data['user']),
     );
   }
@@ -71,7 +71,7 @@ class DioAuthService extends AuthService {
   }) {
     return _performRequest(
       () => _dio.post(
-        '/m/users/change-password',
+        '/users/change-password',
         data: {'currentPassword': oldPassword, 'newPassword': newPassword},
       ),
       (data) {},
@@ -80,7 +80,7 @@ class DioAuthService extends AuthService {
 
   @override
   Future<String> refreshToken() {
-    return _performRequest(() => _dio.post('/m/auth/refresh-token'), (data) {
+    return _performRequest(() => _dio.post('/auth/refresh-token'), (data) {
       final token = data['token'] as String;
       _secureStorage.write(key: defaultTokenKey, value: token);
       return token;
