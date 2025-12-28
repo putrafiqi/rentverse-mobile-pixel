@@ -44,6 +44,9 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-.vscode/
+.vscode/settings.json
 .idea/
 .puro.json
+
+# Environment files
+.env
