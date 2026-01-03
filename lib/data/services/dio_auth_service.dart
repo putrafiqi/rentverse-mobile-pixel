@@ -13,15 +13,18 @@ class DioAuthService extends AuthService {
       _secureStorage = secureStorage ?? const FlutterSecureStorage();
 
   @override
-  Future<UserModel> signIn({required String email, required String password}) {
+  Future<UserModel> signIn({
+    required String email,
+    required String password,
+  }) async {
     return _performRequest(
       () => _dio.post(
         '/auth/login',
         data: {'email': email, 'password': password},
       ),
-      (data) {
+      (data) async {
         final token = data['token'] as String;
-        _secureStorage.write(key: defaultTokenKey, value: token);
+        await _secureStorage.write(key: defaultTokenKey, value: token);
         return UserModel.fromJson(data['user']);
       },
     );
@@ -45,22 +48,22 @@ class DioAuthService extends AuthService {
           'firstName': firstName,
           'lastName': lastName,
           'dateOfBirth': dateOfBirth,
-          'phoneNumber': phoneNumber,
+          'phone': phoneNumber,
         },
       ),
-      (data) {
+      (data) async {
         final token = data['token'] as String;
-        _secureStorage.write(key: defaultTokenKey, value: token);
+        await _secureStorage.write(key: defaultTokenKey, value: token);
         return UserModel.fromJson(data['user']);
       },
     );
   }
 
   @override
-  Future<UserModel> verifyToken() {
+  Future<UserModel> verifyToken() async {
     return _performRequest(
-      () => _dio.get('/auth/verify-token'),
-      (data) => UserModel.fromJson(data['user']),
+      () => _dio.get('/auth/me'),
+      (data) async => UserModel.fromJson(data),
     );
   }
 
@@ -74,15 +77,17 @@ class DioAuthService extends AuthService {
         '/users/change-password',
         data: {'currentPassword': oldPassword, 'newPassword': newPassword},
       ),
-      (data) {},
+      (data) async {},
     );
   }
 
   @override
-  Future<String> refreshToken() {
-    return _performRequest(() => _dio.post('/auth/refresh-token'), (data) {
+  Future<String> refreshToken() async {
+    return _performRequest(() => _dio.post('/auth/refresh-token'), (
+      data,
+    ) async {
       final token = data['token'] as String;
-      _secureStorage.write(key: defaultTokenKey, value: token);
+      await _secureStorage.write(key: defaultTokenKey, value: token);
       return token;
     });
   }
@@ -100,17 +105,17 @@ class DioAuthService extends AuthService {
 
   Future<T> _performRequest<T>(
     Future<Response> Function() request,
-    T Function(dynamic data) mapper,
+    Future<T> Function(dynamic data) mapper,
   ) async {
     try {
       final response = await request();
       final data = response.data['data'];
-      return mapper(data);
+      return await mapper(data);
     } on DioException catch (e) {
       final errorMessage =
           e.response?.data['message'] ?? e.message ?? 'Unknown error';
       throw AuthServiceException(errorMessage);
-    } catch (e) {
+    } catch (_) {
       throw AuthServiceException();
     }
   }

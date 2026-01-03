@@ -1,279 +1,310 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:formz/formz.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:intl/intl.dart';
 
 import '../../sign_in/sign_in.dart';
+import '../bloc/sign_up_bloc.dart';
 
-class SignUpForm extends StatefulWidget {
+class SignUpForm extends StatelessWidget {
   const SignUpForm({super.key});
-
-  @override
-  State<SignUpForm> createState() => _SignUpFormState();
-}
-
-class _SignUpFormState extends State<SignUpForm> {
-  bool _isObscurePassword = true;
-  late GlobalKey<FormState> _signUpformKey;
-  late TextEditingController _emailController;
-  late TextEditingController _passwordController;
-  late TextEditingController _firstNameController;
-  late TextEditingController _lastNameController;
-  late TextEditingController _dateOfBirthController;
-  late TextEditingController _phoneNumberController;
-
-  @override
-  void initState() {
-    super.initState();
-    _signUpformKey = GlobalKey<FormState>();
-    _emailController = TextEditingController();
-    _passwordController = TextEditingController();
-    _firstNameController = TextEditingController();
-    _lastNameController = TextEditingController();
-    _dateOfBirthController = TextEditingController();
-    _phoneNumberController = TextEditingController();
-  }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = TextTheme.of(context);
-    final inputBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8.0),
-    );
-    return Form(
-      key: _signUpformKey,
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            children: [
-              SizedBox(height: kToolbarHeight + 48),
-              const _SignUpFormHeader(),
-              SizedBox(height: 24),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 24.0,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Column(
+        children: [
+          const SizedBox(height: kToolbarHeight + 48),
+          const _SignUpFormHeader(),
+          const SizedBox(height: 24),
+          Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 24.0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Row(
                     children: [
+                      Expanded(child: _FirstNameInput()),
+                      SizedBox(width: 16.0),
+                      Expanded(child: _LastNameInput()),
+                    ],
+                  ),
+                  const SizedBox(height: 16.0),
+                  const _DateOfBirthInput(),
+                  const SizedBox(height: 16.0),
+                  const _PhoneNumberInput(),
+                  const SizedBox(height: 16.0),
+                  const _EmailInput(),
+                  const SizedBox(height: 16.0),
+                  const _PasswordInput(),
+                  const SizedBox(height: 24.0),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const _SignUpSubmitButton(),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // First Name TextFormField
-                          Expanded(
-                            child: TextFormField(
-                              controller: _firstNameController,
-                              keyboardType: TextInputType.name,
-                              textInputAction: TextInputAction.next,
-                              decoration: InputDecoration(
-                                isDense: true,
-                                labelText: 'First Name',
-                                border: inputBorder,
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your first name';
-                                }
-                                return null;
-                              },
-                            ),
+                          Text(
+                            'Already have an account?',
+                            style: textTheme.bodyMedium,
                           ),
-                          const SizedBox(width: 16.0),
-
-                          // Last Name TextFormField
-                          Expanded(
-                            child: TextFormField(
-                              controller: _lastNameController,
-                              keyboardType: TextInputType.name,
-                              textInputAction: TextInputAction.next,
-                              decoration: InputDecoration(
-                                isDense: true,
-                                labelText: 'Last Name',
-                                border: inputBorder,
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your last name';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16.0),
-
-                      // Date of Birth TextFormField
-                      TextFormField(
-                        readOnly: true,
-                        controller: _dateOfBirthController,
-                        keyboardType: TextInputType.datetime,
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          labelText: 'Date of Birth',
-                          border: inputBorder,
-                        ),
-
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your date of birth';
-                          }
-                          return null;
-                        },
-                        onTap: () async {
-                          final selectedDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(1925),
-                            lastDate: DateTime.now(),
-                            currentDate: DateTime.now(),
-                          );
-
-                          if (selectedDate != null) {
-                            _dateOfBirthController.text =
-                                '${selectedDate.day.toString().padLeft(2, '0')}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.year}';
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 16.0),
-
-                      // Phone Number TextFormField
-                      TextFormField(
-                        controller: _phoneNumberController,
-                        keyboardType: TextInputType.phone,
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          labelText: 'Phone Number',
-                          border: inputBorder,
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your phone number';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16.0),
-
-                      // Email TextFormField
-                      TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          labelText: 'Email',
-                          border: inputBorder,
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-
-                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                            return 'Please enter a valid email address';
-                          }
-
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16.0),
-
-                      // Password TextFormField
-                      TextFormField(
-                        controller: _passwordController,
-                        keyboardType: TextInputType.visiblePassword,
-                        textInputAction: TextInputAction.done,
-                        obscureText: _isObscurePassword,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          labelText: 'Password',
-                          border: inputBorder,
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isObscurePassword
-                                  ? LucideIcons.eyeOff
-                                  : LucideIcons.eye,
-                            ),
+                          TextButton(
                             onPressed: () {
-                              setState(() {
-                                _isObscurePassword = !_isObscurePassword;
-                              });
+                              Navigator.pushReplacement(
+                                context,
+                                SignInPage.route(),
+                              );
                             },
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 24.0),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Sign Up Button
-                          FilledButton(
-                            style: FilledButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                            ),
-                            onPressed: () {
-                              if (_signUpformKey.currentState!.validate()) {}
-                            },
-                            child: const Text('Sign Up'),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Already have an account?',
-                                style: textTheme.bodyMedium,
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    SignInPage.route(),
-                                  );
-                                },
-                                child: const Text('Sign In'),
-                              ),
-                            ],
+                            child: const Text('Sign In'),
                           ),
                         ],
                       ),
                     ],
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+          const SizedBox(height: 24),
+        ],
       ),
     );
   }
+}
+
+class _FirstNameInput extends StatelessWidget {
+  const _FirstNameInput();
 
   @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _dateOfBirthController.dispose();
-    _phoneNumberController.dispose();
-    _signUpformKey.currentState?.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    final displayError = context.select(
+      (SignUpBloc bloc) => bloc.state.firstName.displayError,
+    );
+
+    return TextFormField(
+      key: const Key('signUpForm_firstNameInput_textField'),
+      onChanged: (value) =>
+          context.read<SignUpBloc>().add(SignUpFirstNameChanged(value)),
+      keyboardType: TextInputType.name,
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        isDense: true,
+        labelText: 'First Name',
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+        errorText: displayError?.message,
+      ),
+      onTapOutside: (_) => FocusScope.of(context).unfocus(),
+    );
+  }
+}
+
+class _LastNameInput extends StatelessWidget {
+  const _LastNameInput();
+
+  @override
+  Widget build(BuildContext context) {
+    final displayError = context.select(
+      (SignUpBloc bloc) => bloc.state.lastName.displayError,
+    );
+
+    return TextFormField(
+      key: const Key('signUpForm_lastNameInput_textField'),
+      onChanged: (value) =>
+          context.read<SignUpBloc>().add(SignUpLastNameChanged(value)),
+      keyboardType: TextInputType.name,
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        isDense: true,
+        labelText: 'Last Name',
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+        errorText: displayError?.message,
+      ),
+      onTapOutside: (_) => FocusScope.of(context).unfocus(),
+    );
+  }
+}
+
+class _DateOfBirthInput extends StatelessWidget {
+  const _DateOfBirthInput();
+
+  @override
+  Widget build(BuildContext context) {
+    final dateOfBirth = context.select(
+      (SignUpBloc bloc) => bloc.state.dateOfBirth.value,
+    );
+    final displayError = context.select(
+      (SignUpBloc bloc) => bloc.state.dateOfBirth.displayError,
+    );
+
+    // Helper to format date for display inside the text field
+    final textController = TextEditingController(
+      text: dateOfBirth != null
+          ? DateFormat('dd-MM-yyyy').format(dateOfBirth)
+          : '',
+    );
+
+    return TextFormField(
+      key: const Key('signUpForm_dateOfBirthInput_textField'),
+      controller: textController,
+      readOnly: true,
+      keyboardType: TextInputType.datetime,
+      decoration: InputDecoration(
+        isDense: true,
+        labelText: 'Date of Birth',
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+        errorText: displayError?.message,
+        suffixIcon: const Icon(LucideIcons.calendar),
+      ),
+      onTap: () async {
+        final selectedDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime.now(),
+        );
+
+        if (selectedDate != null && context.mounted) {
+          context.read<SignUpBloc>().add(
+            SignUpDateOfBirthChanged(selectedDate),
+          );
+        }
+      },
+      onTapOutside: (_) => FocusScope.of(context).unfocus(),
+    );
+  }
+}
+
+class _PhoneNumberInput extends StatelessWidget {
+  const _PhoneNumberInput();
+
+  @override
+  Widget build(BuildContext context) {
+    final displayError = context.select(
+      (SignUpBloc bloc) => bloc.state.phoneNumber.displayError,
+    );
+
+    return TextFormField(
+      key: const Key('signUpForm_phoneNumberInput_textField'),
+      onChanged: (value) =>
+          context.read<SignUpBloc>().add(SignUpPhoneNumberChanged(value)),
+      keyboardType: TextInputType.phone,
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        isDense: true,
+        labelText: 'Phone Number',
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+        errorText: displayError?.message,
+      ),
+      onTapOutside: (_) => FocusScope.of(context).unfocus(),
+    );
+  }
+}
+
+class _EmailInput extends StatelessWidget {
+  const _EmailInput();
+
+  @override
+  Widget build(BuildContext context) {
+    final displayError = context.select(
+      (SignUpBloc bloc) => bloc.state.email.displayError,
+    );
+
+    return TextFormField(
+      key: const Key('signUpForm_emailInput_textField'),
+      onChanged: (value) =>
+          context.read<SignUpBloc>().add(SignUpEmailChanged(value)),
+      keyboardType: TextInputType.emailAddress,
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        isDense: true,
+        labelText: 'Email',
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+        errorText: displayError?.message,
+      ),
+      onTapOutside: (_) => FocusScope.of(context).unfocus(),
+    );
+  }
+}
+
+class _PasswordInput extends StatelessWidget {
+  const _PasswordInput();
+
+  @override
+  Widget build(BuildContext context) {
+    final isObscure = context.select(
+      (SignUpBloc bloc) => bloc.state.isObscuredPassword,
+    );
+    final displayError = context.select(
+      (SignUpBloc bloc) => bloc.state.password.displayError,
+    );
+
+    return TextFormField(
+      key: const Key('signUpForm_passwordInput_textField'),
+      onChanged: (value) =>
+          context.read<SignUpBloc>().add(SignUpPasswordChanged(value)),
+      obscureText: isObscure,
+      keyboardType: TextInputType.visiblePassword,
+      textInputAction: TextInputAction.done,
+      decoration: InputDecoration(
+        isDense: true,
+        labelText: 'Password',
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+        errorText: displayError?.message,
+        suffixIcon: IconButton(
+          icon: Icon(isObscure ? LucideIcons.eyeOff : LucideIcons.eye),
+          onPressed: () =>
+              context.read<SignUpBloc>().add(SignUpPasswordObscuredToggled()),
+        ),
+      ),
+      onTapOutside: (_) => FocusScope.of(context).unfocus(),
+    );
+  }
+}
+
+class _SignUpSubmitButton extends StatelessWidget {
+  const _SignUpSubmitButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+    final isValidInput = context.select(
+      (SignUpBloc bloc) => bloc.state.isValidInput,
+    );
+
+    final status = context.select((SignUpBloc bloc) => bloc.state.status);
+
+    return FilledButton(
+      style: FilledButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+      ),
+      onPressed: isValidInput
+          ? () => context.read<SignUpBloc>().add(SignUpSubmitted())
+          : null,
+      child: status.isInProgress
+          ? SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: colorScheme.onPrimary,
+              ),
+            )
+          : const Text('Sign Up'),
+    );
   }
 }
 
@@ -301,7 +332,6 @@ class _SignUpFormHeader extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
-
         Text(
           'Enter your information to create an account.',
           style: textTheme.bodyMedium?.copyWith(color: colorScheme.onPrimary),

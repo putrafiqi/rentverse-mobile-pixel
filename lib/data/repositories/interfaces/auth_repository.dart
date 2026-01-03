@@ -1,14 +1,17 @@
-import '../models/models.dart';
-
-enum AuthStatus { authenticated, unauthenticated }
+import '../../../core/core.dart';
+import '../entities/entities.dart';
 
 abstract class AuthRepository {
-  Stream<AuthStatus> get status;
-  Stream<User?> get currentUser;
+  Stream<AuthSession> get session;
 
-  Future<Result> signIn({required String email, required String password});
+  Future<void> initialize();
 
-  Future<Result> signUp({
+  Future<Result<void>> signIn({
+    required String email,
+    required String password,
+  });
+
+  Future<Result<void>> signUp({
     required String email,
     required String password,
     required String firstName,
@@ -18,7 +21,7 @@ abstract class AuthRepository {
   });
   Future<void> signOut();
 
-  Future<Result> changePassword({
+  Future<Result<void>> changePassword({
     required String oldPassword,
     required String newPassword,
   });

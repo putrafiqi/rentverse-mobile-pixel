@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:formz/formz.dart';
 
+import '../../data/data.dart';
+import '../bloc/sign_up_bloc.dart';
 import 'sign_up_form.dart';
 
 class SignUpPage extends StatelessWidget {
@@ -10,7 +14,32 @@ class SignUpPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const _SignUpView();
+    final colorScheme = ColorScheme.of(context);
+    return BlocProvider(
+      create: (context) => SignUpBloc(context.read<AuthRepository>()),
+      child: BlocListener<SignUpBloc, SignUpState>(
+        listenWhen: (previous, current) => previous.status != current.status,
+        listener: (context, state) {
+          if (state.status.isFailure) {
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  content: Text(
+                    state.errorMessage ?? 'Sign Up Failure',
+                    style: TextStyle(color: colorScheme.onError),
+                  ),
+                  backgroundColor: colorScheme.error,
+                ),
+              );
+          }
+          if (state.status.isSuccess) {
+            Navigator.of(context).pop();
+          }
+        },
+        child: const _SignUpView(),
+      ),
+    );
   }
 }
 
