@@ -32,6 +32,7 @@ dev_dependencies:
   build_runner: ^2.10.4
   json_serializable: ^6.11.3
   flutter_launcher_icons: ^0.14.4
+  launcher_name: ^1.0.2
 
 flutter:
   uses-material-design: true
@@ -46,3 +47,6 @@ flutter_launcher_icons:
   image_path: "assets/icon/icon.png"
   adaptive_icon_foreground: "assets/icon/icon_foreground.png" 
   adaptive_icon_background: "#2A14B4"
+
+launcher_name:
+  default: "Rentverse"
