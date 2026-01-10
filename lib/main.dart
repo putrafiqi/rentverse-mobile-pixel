@@ -35,7 +35,7 @@ void main() async {
 
   const baseUrl = String.fromEnvironment(
     'BASE_URL',
-    defaultValue: 'http://localhost:3000/api/v1/m/',
+    defaultValue: 'http://localhost:3000/api/v1/',
   );
 
   final dio = Dio();

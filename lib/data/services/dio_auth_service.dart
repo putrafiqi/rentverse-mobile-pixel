@@ -74,7 +74,7 @@ class DioAuthService extends AuthService {
   }) {
     return _performRequest(
       () => _dio.post(
-        '/users/change-password',
+        '/m/users/change-password',
         data: {'currentPassword': oldPassword, 'newPassword': newPassword},
       ),
       (data) async {},
@@ -83,7 +83,7 @@ class DioAuthService extends AuthService {
 
   @override
   Future<String> refreshToken() async {
-    return _performRequest(() => _dio.post('/auth/refresh-token'), (
+    return _performRequest(() => _dio.post('/m/auth/refresh-token'), (
       data,
     ) async {
       final token = data['token'] as String;

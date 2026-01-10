@@ -15,7 +15,7 @@ class AuthInterceptor extends QueuedInterceptor {
     final excludedPaths = [
       '/auth/login',
       '/auth/register',
-      '/auth/refresh-token',
+      '/m/auth/refresh-token',
     ];
 
     final isExcludedPath = excludedPaths.any(
