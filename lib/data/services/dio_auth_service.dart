@@ -63,7 +63,7 @@ class DioAuthService extends AuthService {
   Future<UserModel> verifyToken() async {
     return _performRequest(
       () => _dio.get('/auth/me'),
-      (data) async => UserModel.fromJson(data),
+      (data) async => UserModel.fromJson(data['user']),
     );
   }
 
